@@ -1,20 +1,92 @@
 #![allow(dead_code)]
 
-use tokens::{Token, TokenType};
+use tokens::{Token, TokenKind};
 
 mod span;
-mod tokens;
+pub mod tokens;
 
-struct Lexer {
+pub struct Lexer {
     content: String,
     position: usize,
 }
 
 impl Lexer {
-    fn new(program: String) -> Self {
+    pub fn new(program: &str) -> Self {
         Lexer {
-            content: program,
+            content: program.to_string(),
             position: 0,
+        }
+    }
+
+    pub fn next_token(&mut self) -> Token {
+        use tokens::TokenKind::*;
+
+        self.skip_whitespace();
+
+        let Some(cur_char) = self.peek(0) else {
+            return Token::new(Eof, self.position, 1);
+        };
+
+        match cur_char {
+            // single-char tokens
+            '#' => {
+                self.advance(1);
+                while let Some(c) = self.peek(0) {
+                    if c == '\n' {
+                        break;
+                    }
+                    self.advance(1);
+                }
+                self.next_token()
+            }
+            '!' => match self.peek(1) {
+                Some('=') => self.make_char_token(NotEqual, 2),
+                _ => self.make_char_token(Not, 1),
+            },
+            '+' => self.make_char_token(Plus, 1),
+            '-' => self.make_char_token(Minus, 1),
+            '/' => self.make_char_token(Slash, 1),
+            '*' => self.make_char_token(Asterisk, 1),
+            '^' => self.make_char_token(Exponent, 1),
+            '=' => match self.peek(1) {
+                Some('=') => self.make_char_token(DoubleEqual, 2),
+                _ => self.make_char_token(Equal, 1),
+            },
+            '<' => match self.peek(1) {
+                Some('=') => self.make_char_token(LessThanOrEqual, 2),
+                _ => self.make_char_token(LessThan, 1),
+            },
+            '>' => match self.peek(1) {
+                Some('=') => self.make_char_token(GreaterThanOrEqual, 2),
+                _ => self.make_char_token(GreaterThan, 1),
+            },
+            '(' => self.make_char_token(LParen, 1),
+            ')' => self.make_char_token(RParen, 1),
+            '{' => self.make_char_token(LBrace, 1),
+            '}' => self.make_char_token(RBrace, 1),
+            '~' => self.make_char_token(Tilde, 1),
+            ':' => self.make_char_token(Colon, 1),
+            ',' => self.make_char_token(Comma, 1),
+            '\n' => self.make_char_token(Newline, 1),
+            'a'..='z' | 'A'..='Z' | '_' => {
+                let initial_position = self.position;
+                let ident = self.read_ident();
+
+                match ident.as_str() {
+                    "fun" => Token::new(Fun, initial_position, 3),
+                    s => Token::new(Identifier(s.to_string()), initial_position, s.len()),
+                }
+            }
+            '0'..='9' => {
+                let initial_position = self.position;
+                let int = self.read_int();
+                Token::new(
+                    IntLiteral(int),
+                    initial_position,
+                    self.position - initial_position + 1,
+                )
+            }
+            c => panic!("illegal token: {c}"),
         }
     }
 
@@ -32,7 +104,7 @@ impl Lexer {
         self.position += distance;
     }
 
-    fn make_char_token(&mut self, kind: TokenType, size: usize) -> Token {
+    fn make_char_token(&mut self, kind: TokenKind, size: usize) -> Token {
         let tok = Token::new(kind, self.position, size);
         self.advance(size);
         tok
@@ -49,7 +121,7 @@ impl Lexer {
         self.content[initial_position..self.position].to_string()
     }
 
-    fn read_int(&mut self) -> usize {
+    fn read_int(&mut self) -> isize {
         let initial_position = self.position;
         self.advance(1);
 
@@ -59,7 +131,7 @@ impl Lexer {
 
         self.content[initial_position..self.position]
             .to_string()
-            .parse::<usize>()
+            .parse::<isize>()
             .unwrap()
     }
 
@@ -68,78 +140,17 @@ impl Lexer {
             self.advance(1);
         }
     }
+}
 
-    pub fn next_token(&mut self) -> Token {
-        use tokens::TokenType::*;
+impl Iterator for Lexer {
+    type Item = Token;
 
-        self.skip_whitespace();
-
-        let Some(cur_char) = self.peek(0) else {
-            return Token::new(Eof, self.position, 1);
-        };
-
-        match cur_char {
-            // single-char tokens
-            '!' => match self.peek(1) {
-                Some('=') => self.make_char_token(NotEqual, 2),
-                _ => self.make_char_token(Not, 1),
-            },
-            '+' => self.make_char_token(Plus, 1),
-            '-' => match self.peek(1) {
-                Some('-') => {
-                    self.advance(2);
-                    while let Some(c) = self.peek(0) {
-                        if c == '\n' {
-                            break;
-                        }
-                        self.advance(1);
-                    }
-                    self.next_token()
-                }
-                Some('>') => self.make_char_token(RArrow, 2),
-                _ => self.make_char_token(Minus, 1),
-            },
-            '/' => self.make_char_token(Divide, 1),
-            '*' => self.make_char_token(Multiply, 1),
-            '^' => self.make_char_token(Exponent, 1),
-            '=' => self.make_char_token(Equal, 1),
-            '<' => match self.peek(1) {
-                Some('-') => self.make_char_token(LArrow, 2),
-                Some('=') => self.make_char_token(LessThanOrEqual, 2),
-                _ => self.make_char_token(LessThan, 1),
-            },
-            '>' => match self.peek(1) {
-                Some('=') => self.make_char_token(GreaterThanOrEqual, 2),
-                _ => self.make_char_token(GreaterThan, 1),
-            },
-            '(' => self.make_char_token(LParen, 1),
-            ')' => self.make_char_token(RParen, 1),
-            '{' => self.make_char_token(LBrace, 1),
-            '}' => self.make_char_token(RBrace, 1),
-            ':' => self.make_char_token(Colon, 1),
-            ',' => self.make_char_token(Comma, 1),
-            '\n' => self.make_char_token(Newline, 1),
-            'a'..='z' | 'A'..='Z' | '_' => {
-                let initial_position = self.position;
-                let ident = self.read_ident();
-
-                match ident.as_str() {
-                    "val" => Token::new(Val, initial_position, 3),
-                    "mut" => Token::new(Mut, initial_position, 3),
-                    "fun" => Token::new(Fun, initial_position, 3),
-                    s => Token::new(Identifier(s.to_string()), initial_position, s.len()),
-                }
-            }
-            '0'..='9' => {
-                let initial_position = self.position;
-                let int = self.read_int();
-                Token::new(
-                    IntLiteral(int),
-                    initial_position,
-                    self.position - initial_position + 1,
-                )
-            }
-            c => panic!("illegal token: {c}"),
+    fn next(&mut self) -> Option<Self::Item> {
+        let token = self.next_token();
+        if token.kind == TokenKind::Eof {
+            None
+        } else {
+            Some(token)
         }
     }
 }
@@ -147,46 +158,85 @@ impl Lexer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tokens::{TokenType, TokenType::*};
+    use pretty_assertions::assert_eq;
+    use tokens::{TokenKind, TokenKind::*};
 
-    fn expect_tok(lexer: &mut Lexer, expected: TokenType) {
-        let token = lexer.next_token();
-        assert_eq!(token.kind, expected);
+    fn expect_tok(lexer: &mut Lexer, expected: Vec<TokenKind>) {
+        let token_kinds = lexer
+            .into_iter()
+            .map(|t| t.kind.clone())
+            .collect::<Vec<_>>();
+        assert_eq!(token_kinds, expected);
     }
 
     #[test]
     fn all_syntax() {
-        let input = "val mut fun<- lorem_ipsum123 ->(){ }:,\n -- lorem lorem \n!+   - /*^= != < > <= >=\n-- comment";
-        let mut lexer = Lexer::new(input.to_string());
-        expect_tok(&mut lexer, Val);
-        expect_tok(&mut lexer, Mut);
-        expect_tok(&mut lexer, Fun);
-        expect_tok(&mut lexer, LArrow);
-        expect_tok(&mut lexer, Identifier("lorem_ipsum123".to_string()));
-        expect_tok(&mut lexer, RArrow);
-        expect_tok(&mut lexer, LParen);
-        expect_tok(&mut lexer, RParen);
-        expect_tok(&mut lexer, LBrace);
-        expect_tok(&mut lexer, RBrace);
-        expect_tok(&mut lexer, Colon);
-        expect_tok(&mut lexer, Comma);
-        expect_tok(&mut lexer, Newline);
-        expect_tok(&mut lexer, Newline);
-        expect_tok(&mut lexer, Not);
-        expect_tok(&mut lexer, Plus);
-        expect_tok(&mut lexer, Minus);
-        expect_tok(&mut lexer, Divide);
-        expect_tok(&mut lexer, Multiply);
-        expect_tok(&mut lexer, Exponent);
-        expect_tok(&mut lexer, Equal);
-        expect_tok(&mut lexer, NotEqual);
-        expect_tok(&mut lexer, LessThan);
-        expect_tok(&mut lexer, GreaterThan);
-        expect_tok(&mut lexer, LessThanOrEqual);
-        expect_tok(&mut lexer, GreaterThanOrEqual);
-        expect_tok(&mut lexer, Newline);
-        expect_tok(&mut lexer, Eof);
-        expect_tok(&mut lexer, Eof);
-        expect_tok(&mut lexer, Eof);
+        let input = r#"
+            foo :: 4
+            bar : Int = 33
+
+            calc :: fun (~x, ~y: Int) Int {
+             z :: x / y
+             z^2
+            }
+
+            calc(foo, bar)
+        "#;
+        let mut lexer = Lexer::new(input);
+        expect_tok(
+            &mut lexer,
+            vec![
+                Newline,
+                Identifier("foo".to_string()),
+                Colon,
+                Colon,
+                IntLiteral(4),
+                Newline,
+                Identifier("bar".to_string()),
+                Colon,
+                Identifier("Int".to_string()),
+                Equal,
+                IntLiteral(33),
+                Newline,
+                Newline,
+                Identifier("calc".to_string()),
+                Colon,
+                Colon,
+                Fun,
+                LParen,
+                Tilde,
+                Identifier("x".to_string()),
+                Comma,
+                Tilde,
+                Identifier("y".to_string()),
+                Colon,
+                Identifier("Int".to_string()),
+                RParen,
+                Identifier("Int".to_string()),
+                LBrace,
+                Newline,
+                Identifier("z".to_string()),
+                Colon,
+                Colon,
+                Identifier("x".to_string()),
+                Slash,
+                Identifier("y".to_string()),
+                Newline,
+                Identifier("z".to_string()),
+                Exponent,
+                IntLiteral(2),
+                Newline,
+                RBrace,
+                Newline,
+                Newline,
+                Identifier("calc".to_string()),
+                LParen,
+                Identifier("foo".to_string()),
+                Comma,
+                Identifier("bar".to_string()),
+                RParen,
+                Newline,
+            ],
+        );
     }
 }

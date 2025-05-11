@@ -1,31 +1,31 @@
+use std::fmt::Display;
+
 use crate::span::Span;
 
-#[derive(Debug, PartialEq, Clone)]
-pub enum TokenType {
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub enum TokenKind {
     // keywords:
-    Val, // val
-    Mut, // mut
     Fun, // fun
 
     // syntax:
-    LArrow,  // <-
-    Colon,   // :
     LParen,  // (
     RParen,  // )
     LBrace,  // {
     RBrace,  // }
+    Colon,   // :
     Comma,   // ,
-    RArrow,  // ->
+    Tilde,   // ~
     Newline, // \n
+    Equal,   // =
 
     // operators:
     Not,                // !
     Plus,               // +
     Minus,              // -
-    Divide,             // /
-    Multiply,           // *
+    Slash,              // /
+    Asterisk,           // *
     Exponent,           // ^
-    Equal,              // ==
+    DoubleEqual,        // ==
     NotEqual,           // !=
     LessThan,           // <
     GreaterThan,        // >
@@ -35,18 +35,52 @@ pub enum TokenType {
     // idents
     Identifier(String), // variable/type names
 
-    IntLiteral(usize),
+    IntLiteral(isize),
 
     Eof,
 }
 
+impl Display for TokenKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str = match self {
+            TokenKind::Fun => "fun",
+            TokenKind::LParen => "(",
+            TokenKind::RParen => ")",
+            TokenKind::LBrace => "{",
+            TokenKind::RBrace => "}",
+            TokenKind::Colon => ":",
+            TokenKind::Comma => ",",
+            TokenKind::Tilde => "~",
+            TokenKind::Newline => "\n",
+            TokenKind::Equal => "=",
+            TokenKind::Not => "!",
+            TokenKind::Plus => "+",
+            TokenKind::Minus => "-",
+            TokenKind::Slash => "/",
+            TokenKind::Asterisk => "*",
+            TokenKind::Exponent => "^",
+            TokenKind::DoubleEqual => "==",
+            TokenKind::NotEqual => "!=",
+            TokenKind::LessThan => "<",
+            TokenKind::GreaterThan => ">",
+            TokenKind::LessThanOrEqual => "<=",
+            TokenKind::GreaterThanOrEqual => ">=",
+            TokenKind::Identifier(i) => i,
+            TokenKind::IntLiteral(i) => &format!("{i}"),
+            TokenKind::Eof => "EOF",
+        };
+        f.write_str(str)
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Token {
-    pub kind: TokenType,
+    pub kind: TokenKind,
     pub position: Span,
 }
 
 impl Token {
-    pub fn new(kind: TokenType, start: usize, size: usize) -> Self {
+    pub fn new(kind: TokenKind, start: usize, size: usize) -> Self {
         Token {
             kind,
             position: Span {

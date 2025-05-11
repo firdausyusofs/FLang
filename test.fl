@@ -1,0 +1,17 @@
+-- variable declaration
+val foo <- 42
+mut bar: Int <- 4
+
+-- function declaration
+fun calc(x, y: Int) -> Int {
+  val z <- x / y
+  z
+}
+
+calc(x: foo, y: bar)
+
+fun say_hi(to person: String) {
+  print("hi \(person)")
+}
+
+say_hi(to: "Firdaus")

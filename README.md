@@ -22,14 +22,20 @@ This project is a lexer (tokenizer) written in Rust for a custom programming lan
 
 ```
 -- variable declaration
-val foo <- 42
-mut bar: Int <- 4
+foo :: 42
+bar: Int = 4
 
 -- function declaration
-fun calc(x, y: Int) -> Int {
-  val z <- x / y
-  z
+calc :: fun (~x, ~y: Int) Int {
+    z :: x + y
+    z
 }
 
-calc(x: foo, y: bar)
+calc(foo, bar)
+
+hello :: fun (name person: String) {
+    print("Hello, \(person))
+}
+
+hello(name: "Firdaus")
 ```

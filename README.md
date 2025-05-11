@@ -22,20 +22,20 @@ This project is a lexer (tokenizer) written in Rust for a custom programming lan
 
 ```
 # variable declaration
-foo :: 42
-bar: Int = 4
+foo :: 42;
+bar: Int = 4;
 
 # function declaration
 calc :: fun (~x, ~y: Int) Int {
-    z :: x + y
+    z :: x + y;
     z
-}
+};
 
-calc(foo, bar)
+calc(foo, bar);
 
 hello :: fun (name person: String) {
     print("Hello, \(person))
-}
+};
 
-hello(name: "Firdaus")
+hello(name: "Firdaus");
 ```

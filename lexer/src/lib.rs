@@ -67,7 +67,7 @@ impl Lexer {
             '~' => self.make_char_token(Tilde, 1),
             ':' => self.make_char_token(Colon, 1),
             ',' => self.make_char_token(Comma, 1),
-            '\n' => self.make_char_token(Newline, 1),
+            ';' => self.make_char_token(SemiColon, 1),
             'a'..='z' | 'A'..='Z' | '_' => {
                 let initial_position = self.position;
                 let ident = self.read_ident();
@@ -136,7 +136,7 @@ impl Lexer {
     }
 
     fn skip_whitespace(&mut self) {
-        while matches!(self.peek(0), Some(' ' | '\t' | '\r')) {
+        while matches!(self.peek(0), Some(' ' | '\t' | '\r' | '\n')) {
             self.advance(1);
         }
     }
@@ -172,33 +172,31 @@ mod tests {
     #[test]
     fn all_syntax() {
         let input = r#"
-            foo :: 4
-            bar : Int = 33
+            foo :: 4;
+            bar : Int = 33;
 
             calc :: fun (~x, ~y: Int) Int {
-             z :: x / y
+             z :: x / y;
              z^2
-            }
+            };
 
-            calc(foo, bar)
+            calc(foo, bar);
         "#;
         let mut lexer = Lexer::new(input);
         expect_tok(
             &mut lexer,
             vec![
-                Newline,
                 Identifier("foo".to_string()),
                 Colon,
                 Colon,
                 IntLiteral(4),
-                Newline,
+                SemiColon,
                 Identifier("bar".to_string()),
                 Colon,
                 Identifier("Int".to_string()),
                 Equal,
                 IntLiteral(33),
-                Newline,
-                Newline,
+                SemiColon,
                 Identifier("calc".to_string()),
                 Colon,
                 Colon,
@@ -214,28 +212,25 @@ mod tests {
                 RParen,
                 Identifier("Int".to_string()),
                 LBrace,
-                Newline,
                 Identifier("z".to_string()),
                 Colon,
                 Colon,
                 Identifier("x".to_string()),
                 Slash,
                 Identifier("y".to_string()),
-                Newline,
+                SemiColon,
                 Identifier("z".to_string()),
                 Exponent,
                 IntLiteral(2),
-                Newline,
                 RBrace,
-                Newline,
-                Newline,
+                SemiColon,
                 Identifier("calc".to_string()),
                 LParen,
                 Identifier("foo".to_string()),
                 Comma,
                 Identifier("bar".to_string()),
                 RParen,
-                Newline,
+                SemiColon,
             ],
         );
     }

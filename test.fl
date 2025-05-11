@@ -1,17 +1,17 @@
 # variable declaration
-foo :: 42
-bar: Int = 4
+foo :: 42;
+bar: Int = 4;
 
 # function declaration
 calc :: fun (~x, ~y: Int) Int {
-    z :: x / y
+    z :: x / y;
     z
-}
+};
 
-calc(foo, bar)
+calc(foo, bar);
 
 add :: fun (~num: Int, to other_num: Int) Int {
   num + other_num
-}
+};
 
-add(3, to: 4)
+add(3, to: 4);

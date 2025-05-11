@@ -194,5 +194,39 @@ mod tests {
                 }),
             })]),
         );
+
+        expect_ast(
+            "6 - 3 - 2",
+            Program(vec![Statement::Expression(Expression::InfixExpr {
+                left: Box::new(Expression::InfixExpr {
+                    left: Box::new(Expression::IntLiteral(6)),
+                    operator: InfixOperator::Minus,
+                    right: Box::new(Expression::IntLiteral(3)),
+                }),
+                operator: InfixOperator::Minus,
+                right: Box::new(Expression::IntLiteral(2)),
+            })]),
+        );
+
+        expect_ast(
+            "(1 - (3 + 2)) * (122 - 9)",
+            Program(vec![Statement::Expression(Expression::InfixExpr {
+                left: Box::new(Expression::InfixExpr {
+                    left: Box::new(Expression::IntLiteral(1)),
+                    operator: InfixOperator::Minus,
+                    right: Box::new(Expression::InfixExpr {
+                        left: Box::new(Expression::IntLiteral(3)),
+                        operator: InfixOperator::Plus,
+                        right: Box::new(Expression::IntLiteral(2)),
+                    }),
+                }),
+                operator: InfixOperator::Multiply,
+                right: Box::new(Expression::InfixExpr {
+                    left: Box::new(Expression::IntLiteral(122)),
+                    operator: InfixOperator::Minus,
+                    right: Box::new(Expression::IntLiteral(9)),
+                }),
+            })]),
+        );
     }
 }

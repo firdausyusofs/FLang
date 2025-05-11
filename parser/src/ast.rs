@@ -12,6 +12,8 @@ pub enum Expression {
     IntLiteral(isize),
     Ident(String),
 
+    Unit,
+
     PrefixExpr {
         perator: PrefixOperator,
         expr: Box<Expression>,
@@ -31,9 +33,8 @@ pub enum Expression {
     },
 
     Function {
-        name: String,
         params: Vec<FunctionParam>,
-        return_type: Type,
+        return_type: Option<Type>,
         body: Vec<ExpressionStatement>,
     },
 

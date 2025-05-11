@@ -15,7 +15,7 @@ This project is a lexer (tokenizer) written in Rust for a custom programming lan
   - Return types specified after the parameter list (e.g., `fun (...) Int`)
   - Function calls using either positional or named arguments
   - String interpolation using `\(...)` syntax
-  - Single-line comments using `# Easy to extend with new token types or syntax rules
+  - Single-line comments using `#` Easy to extend with new token types or syntax rules
 - Designed for use in future parsing and evaluation stages
 
 ## 🔤 Example Input

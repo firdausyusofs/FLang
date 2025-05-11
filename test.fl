@@ -1,17 +1,17 @@
--- variable declaration
-val foo <- 42
-mut bar: Int <- 4
+# variable declaration
+foo :: 42
+bar: Int = 4
 
--- function declaration
-fun calc(x, y: Int) -> Int {
-  val z <- x / y
-  z
+# function declaration
+calc :: fun (~x, ~y: Int) Int {
+    z :: x / y
+    z
 }
 
-calc(x: foo, y: bar)
+calc(foo, bar)
 
-fun say_hi(to person: String) {
-  print("hi \(person)")
+add :: fun (~num: Int, to other_num: Int) Int {
+  num + other_num
 }
 
-say_hi(to: "Firdaus")
+add(3, to: 4)

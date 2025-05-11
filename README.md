@@ -21,11 +21,11 @@ This project is a lexer (tokenizer) written in Rust for a custom programming lan
 ## 🔤 Example Input
 
 ```
--- variable declaration
+# variable declaration
 foo :: 42
 bar: Int = 4
 
--- function declaration
+# function declaration
 calc :: fun (~x, ~y: Int) Int {
     z :: x + y
     z

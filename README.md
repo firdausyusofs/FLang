@@ -7,15 +7,15 @@ This project is a lexer (tokenizer) written in Rust for a custom programming lan
 - Handwritten lexer without third-party libraries
 - Clean token stream for further processing
 - Recognizes:
-  - Immutable declarations with `val`
-  - Mutable declarations with `mut`
-  - Custom assignment operator `<-`
-  - Optional type annotations (e.g. `x: Int`)
-  - Function declarations with `fun`
-  - Return types using `->`
-  - Basic expression parsing (identifiers, arithmetic, function calls)
-  - Block grouping with `{}` and function call arguments with `()`
-- Easy to extend with new token types or syntax rules
+  - Variable declarations using `::`
+  - Type annotations using `:` (e.g., `bar: Int`)
+  - Assignments using `=`
+  - Function declarations with `fun` keyword
+  - Argument destructuring and labeling (e.g., `name person: String`)
+  - Return types specified after the parameter list (e.g., `fun (...) Int`)
+  - Function calls using either positional or named arguments
+  - String interpolation using `\(...)` syntax
+  - Single-line comments using `# Easy to extend with new token types or syntax rules
 - Designed for use in future parsing and evaluation stages
 
 ## 🔤 Example Input

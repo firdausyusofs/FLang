@@ -36,7 +36,7 @@ calc :: fun (~x, ~y: Int) Int {
 calc(foo, bar);
 
 hello :: fun (name person: String) {
-    print("Hello, \(person));
+    print("Hello, \(person)");
 };
 
 hello(name: "Firdaus");

@@ -21,8 +21,10 @@ This project is a lexer (tokenizer) written in Rust for a custom programming lan
 ## 🔤 Example Input
 
 ```
-# variable declaration
+# constant declaration
 foo :: 42;
+
+# variable declaration
 bar: Int = 4;
 
 # function declaration
@@ -34,7 +36,7 @@ calc :: fun (~x, ~y: Int) Int {
 calc(foo, bar);
 
 hello :: fun (name person: String) {
-    print("Hello, \(person))
+    print("Hello, \(person));
 };
 
 hello(name: "Firdaus");

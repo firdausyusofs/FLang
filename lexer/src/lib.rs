@@ -75,6 +75,8 @@ impl Lexer {
                 match ident.as_str() {
                     "fun" => Token::new(Fun, initial_position, 3),
                     "unit" => Token::new(Unit, initial_position, 4),
+                    "true" => Token::new(True, initial_position, 4),
+                    "false" => Token::new(False, initial_position, 5),
                     s => Token::new(Identifier(s.to_string()), initial_position, s.len()),
                 }
             }
@@ -180,6 +182,8 @@ mod tests {
 
             calc :: fun (~x, ~y: Int) Int {
              z :: x / y;
+             true;
+             false;
              z^2
             };
 
@@ -223,6 +227,10 @@ mod tests {
                 Identifier("x".to_string()),
                 Slash,
                 Identifier("y".to_string()),
+                SemiColon,
+                True,
+                SemiColon,
+                False,
                 SemiColon,
                 Identifier("z".to_string()),
                 Exponent,

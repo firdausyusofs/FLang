@@ -1,15 +1,15 @@
 #![allow(dead_code)]
 
+use crate::lexer::tokens::{
+    Token,
+    TokenKind::{self, *},
+};
 use ast::{
     Argument, Expression, ExpressionStatement, FunctionParam, InfixOperator, Precedence, Program,
     Type,
 };
-use lexer::tokens::{
-    Token,
-    TokenKind::{self, *},
-};
 
-mod ast;
+pub mod ast;
 
 type PrefixParseFn = fn(&mut Parser) -> Result<Expression, Error>;
 
@@ -385,12 +385,15 @@ impl Parser {
 #[cfg(test)]
 mod tests {
     use crate::{
-        Parser,
-        ast::{
-            Argument, Expression, ExpressionStatement, FunctionParam, InfixOperator, Program, Type,
+        lexer::{Lexer, tokens::Token},
+        parser::{
+            Parser,
+            ast::{
+                Argument, Expression, ExpressionStatement, FunctionParam, InfixOperator, Program,
+                Type,
+            },
         },
     };
-    use lexer::{Lexer, tokens::Token};
     use pretty_assertions::assert_eq;
 
     fn expect_ast(input: &str, ast: Program) {
